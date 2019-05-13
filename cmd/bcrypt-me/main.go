@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	flagCost int
+	flagCost         int
+	flagBASHFriendly bool
 )
 
 var rootCmd = &cobra.Command{
@@ -27,7 +29,11 @@ var genCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(string(hash))
+		if flagBASHFriendly {
+			fmt.Println(strings.Replace(string(hash), "$", "#", -1))
+		} else {
+			fmt.Println(string(hash))
+		}
 	},
 }
 
@@ -47,6 +53,7 @@ var checkCmd = &cobra.Command{
 
 func main() {
 	genCmd.PersistentFlags().IntVarP(&flagCost, "cost", "c", 12, fmt.Sprintf("the cost of the hash; min %d, max %d", bcrypt.MinCost, bcrypt.MaxCost))
+	genCmd.PersistentFlags().BoolVarP(&flagBASHFriendly, "bash-friendly", "b", false, "generate a BASH-friendly hash")
 	rootCmd.AddCommand(genCmd)
 	rootCmd.AddCommand(checkCmd)
 	if err := rootCmd.Execute(); err != nil {
