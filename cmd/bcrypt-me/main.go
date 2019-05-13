@@ -42,7 +42,8 @@ var checkCmd = &cobra.Command{
 	Short: "Validate the given password against the specified bcrypt hash",
 	Args:  cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := bcrypt.CompareHashAndPassword([]byte(args[0]), []byte(args[1]))
+		hash := strings.Replace(args[0], "#", "$", -1)
+		err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(args[1]))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
